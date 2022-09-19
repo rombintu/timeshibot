@@ -10,7 +10,8 @@ class IsAdmin(telebot.custom_filters.SimpleCustomFilter):
     key='is_chat_admin'
     @staticmethod
     def check(message: telebot.types.Message):
-        return bot.get_chat_member(message.chat.id,message.from_user.id).status in ['administrator']
+        return bot.get_chat_member(message.chat.id,message.from_user.id).status in \
+            ['administrator']
 	
 bot.add_custom_filter(IsAdmin())
 
@@ -19,9 +20,10 @@ bot.add_custom_filter(IsAdmin())
 def send_welcome(message):
 	bot.reply_to(message, utils.start)
 
-@bot.message_handler(content_types=['document'], is_chat_admin=True)
+@bot.message_handler(content_types=['document'])
+@bot.message_handler(is_chat_admin=True)
 def handle_text_doc(message):
-	pass
+	bot.reply_to(message, "Проверка прошла успешно!")
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
