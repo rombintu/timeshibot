@@ -9,29 +9,39 @@ pattern_res = "Расписание на {}:\n{}"
 days = [
     "понедельник",
     "вторник",
-    "среда",
+    "среду",
     "четверг",
-    "пятница",
-    "суббота",
+    "пятницу",
+    "субботу",
     "воскресенье",
-]
+    ]
 
-short_days = [
-    "пн", "вт", "ср", "чт", "пт", "сб", "вс",
-]
+short_days = { 
+    "rus": ["пн", "вт", "ср", "чт", "пт", "сб", "вс"],
+    "en" : ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+}
 
 triggers = {
     "lesson": ["пары", "расписание"],
-    "which" : "как",
-    "office": "каб",
+    "which" : "какой",
+    "office": "кабинет",
     "unday" : ["сегодня", "завтра", "послезавтра", "вчера"],
-    "day"   : [*days, *short_days],
+    "day"   : [*days, *short_days["rus"]],
     }
 
 
-def get_weekday(short=False, tomorrow=0):
+def get_weekday(short=False, tomorrow=0, en=False):
     weekday = datetime.today().weekday() + tomorrow
     if weekday > 6: weekday = weekday-7
     if short:
-        return short_days[weekday]
+        if en:
+            return short_days["en"][weekday]
+        else:
+            return short_days["rus"][weekday]
     return days[weekday]
+
+def filter_by_day(text=""):
+    for i, (day, sday) in enumerate(zip(days, short_days["rus"])):
+        if day in text or sday in text:
+            return i
+    return -1
