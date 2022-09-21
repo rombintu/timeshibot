@@ -28,7 +28,6 @@ def handle_text_doc(message):
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
-    print(message.chat.id) # TODO
     req_full = message.text.lower()
     req_start = req_full.split()[0]
     req_other = req_full.split()[0:]
