@@ -1,9 +1,11 @@
 import requests, json
+from cachetools import cached, TTLCache
 
 class Api:
     def __init__(self, route):
         self.route = route
 
+    @cached(cache=TTLCache(maxsize=1024, ttl=600))
     def GET(self):
         return requests.get(self.route).json()
 
