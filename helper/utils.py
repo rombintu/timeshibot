@@ -4,7 +4,10 @@ start = """
 Добавь меня в группу и дай права на чтение сообщений
 Я буду вашим верным помощником в организации расписания пар 😎
 Весь мой код открыт и находится на https://github.com/rombintu/timeshibot"""
+
 pattern_res = "Расписание на {}:\n{}"
+
+problems_DB = "Проблемы с Базой данных 😢\nОбратитесь к администратору "
 
 weeks = ["even", "odd"]
 
@@ -33,15 +36,19 @@ triggers = {
     }
 
 
-def get_weekday(short=False, tomorrow=0, en=False):
+def get_weekday(short=False, tomorrow=0, en=False, i=False):
     weekday = datetime.today().weekday() + tomorrow
     if weekday > 6: weekday = weekday-7
+    if i: return weekday
     if short:
         if en:
             return short_days["en"][weekday]
         else:
             return short_days["rus"][weekday]
     return days[weekday]
+
+def get_current_week(): # TODO
+    return 0
 
 def filter_by_day(text=""):
     for i, (day, sday) in enumerate(zip(days, short_days["rus"])):

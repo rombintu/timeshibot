@@ -1,5 +1,4 @@
 import os
-from typing import List
 import requests
 
 class Api:
@@ -7,12 +6,18 @@ class Api:
         self.route = route
 
     def GET(self, chat_id, week, day, action="get"):
-        return requests.get(
-            os.path.join(
-                self.route, chat_id, week, day, action)).json()
+        try:
+            return requests.get(
+                os.path.join(
+                    self.route, chat_id, week, day, action)).json(), None
+        except Exception as error:
+            return {}, error
 
     def POST(self, chat_id, week, day, action, payload=[]):
-        return requests.post(
-            os.path.join(
-                self.route, chat_id, week, day, action), 
-                json=payload).json()
+        try:
+            return requests.post(
+                os.path.join(
+                    self.route, chat_id, week, day, action), 
+                    json=payload).json(), None
+        except Exception as error:
+            return {}, error
