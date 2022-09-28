@@ -6,6 +6,8 @@ start = """
 Весь мой код открыт и находится на https://github.com/rombintu/timeshibot"""
 pattern_res = "Расписание на {}:\n{}"
 
+weeks = ["even", "odd"]
+
 days = [
     "понедельник",
     "вторник",
@@ -20,6 +22,7 @@ short_days = {
     "rus": ["пн", "вт", "ср", "чт", "пт", "сб", "вс"],
     "en" : ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 }
+
 
 triggers = {
     "lesson": ["пары", "расписание"],
