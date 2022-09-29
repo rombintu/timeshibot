@@ -8,7 +8,7 @@ start = """
 pattern_res = "Расписание на {}:\n{}"
 
 problems_DB = "Проблемы с Базой данных 😢\nОбратитесь к администратору "
-
+not_found = "Не найдено 🙈"
 weeks = ["even", "odd"]
 
 days = [
@@ -47,8 +47,18 @@ def get_weekday(short=False, tomorrow=0, en=False, i=False):
             return short_days["rus"][weekday]
     return days[weekday]
 
+def get_weekdays_by_index(i):
+    """
+    Get (long_day_rus, short_day_rus, short_day_en)
+    """
+    return (
+        days[i],
+        short_days["rus"][i],
+        short_days["en"][i],
+    )
+
 def get_current_week(): # TODO
-    return 0
+    return weeks[0]
 
 def filter_by_day(text=""):
     for i, (day, sday) in enumerate(zip(days, short_days["rus"])):
