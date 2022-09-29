@@ -13,7 +13,7 @@ class Api:
         except Exception as error:
             return {}, error
 
-    def POST(self, chat_id, week, day, action, payload=[]):
+    def POST(self, chat_id, week, day, action="create", payload=[]):
         try:
             return requests.post(
                 os.path.join(

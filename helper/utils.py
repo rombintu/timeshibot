@@ -1,4 +1,7 @@
 from datetime import datetime
+import json 
+import pandas as pd
+from sqlalchemy import true
 
 start = """
 Добавь меня в группу и дай права на чтение сообщений
@@ -9,7 +12,7 @@ pattern_res = "Расписание на {}:\n{}"
 
 problems_DB = "Проблемы с Базой данных 😢\nОбратитесь к администратору "
 not_found = "Не найдено 🙈"
-weeks = ["even", "odd"]
+weeks = ["odd", "even"]
 
 days = [
     "понедельник",
@@ -65,3 +68,13 @@ def filter_by_day(text=""):
         if day in text or sday in text:
             return i
     return -1
+
+def excel_parse(ex_file, sheet_name):
+    return json.loads(
+        pd.read_excel(
+            ex_file,
+            sheet_name=sheet_name
+        ).to_json())
+
+def check_js_file(js_file): # TODO
+    return True

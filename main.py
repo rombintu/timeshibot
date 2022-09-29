@@ -22,9 +22,53 @@ def send_welcome(message):
 	bot.reply_to(message, utils.start)
 
 # TODO
-@bot.message_handler( content_types=["document"], is_chat_admin=True)
+@bot.message_handler( content_types=["document", "text"], is_chat_admin=True)
 def handle_text_doc(message):
-	bot.reply_to(message, "Проверка прошла успешно!")
+    chat_id = str(message.chat.id)
+    ex_file = bot.download_file(bot.get_file(message.document.file_id).file_path)
+    days_not_found = []
+    week = 0
+    js_payload = {}
+    res = "Успех!\nДни которые не были отправлены:\n{days}"
+    try:
+        week = int(message.caption) % 2
+    except ValueError:
+        bot.reply_to(message, "Неправильный номер недели") # TODO
+        return
+
+    for day in utils.short_days["en"]:
+        try:
+            js_payload[day] = utils.excel_parse(ex_file, sheet_name=day)
+        except ValueError:
+            days_not_found.append(day)
+    
+    for day, subjects in js_payload.items():
+        req_payload = [] 
+        for key, values in subjects.items():
+            for value in values.values():
+                req_payload.append({key: value})
+
+        payload, err = backend_api.POST(
+        chat_id=chat_id, 
+        week=week, # TODO
+        day=day,
+        payload=req_payload
+        )
+
+        if err != None:
+            res = utils.problems_DB
+            return
+        else:
+            if payload["error"] != 0:
+                res = payload["message"]
+                return
+    # except ValueError:
+    # bot.reply_to(message, "Неправильный номер недели") # TODO
+    # return
+    # except Exception:
+    #     bot.reply_to(message, "Неправильный формат документа") # TODO
+    #     return
+    bot.reply_to(message, res.format(days=", ".join(days_not_found)))
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
@@ -34,7 +78,7 @@ def handle_text(message):
     day_long_rus = ""
 
     # Current week (even, odd)
-    curr_week = utils.get_current_week()
+    curr_week = utils.get_current_week() # TODO
     week_day_index = -1
     # Response
     res = ""
@@ -94,7 +138,7 @@ def handle_text(message):
             else:
                 res = utils.pattern_res.format(
                     day_long_rus.title(), 
-                    json.dumps(payload),
+                    json.dumps(payload), # TODO
                 )  
         bot.reply_to(message, res)
 

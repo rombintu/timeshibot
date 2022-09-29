@@ -43,5 +43,9 @@ def testApiPOST():
     
 if __name__ == "__main__":
     # get_weekday()
-    testApiPOST()
-    testApiGET()
+    # testApiPOST()
+    # testApiGET()
+    file = open("./example.xlsx", "rb")
+    p = utils.excel_parse(file, sheet_name="wed")
+    file.close()
+    print(p)
