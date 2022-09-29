@@ -22,7 +22,7 @@ def send_welcome(message):
 	bot.reply_to(message, utils.start)
 
 # TODO
-@bot.message_handler( content_types=["document", "text"], is_chat_admin=True)
+@bot.message_handler( content_types=["document"], is_chat_admin=True)
 def handle_text_doc(message):
     chat_id = str(message.chat.id)
     ex_file = bot.download_file(bot.get_file(message.document.file_id).file_path)
@@ -32,7 +32,7 @@ def handle_text_doc(message):
     res = "Успех!\nДни которые не были отправлены:\n{days}"
     try:
         week = int(message.caption) % 2
-    except ValueError:
+    except TypeError:
         bot.reply_to(message, "Неправильный номер недели") # TODO
         return
 
@@ -42,33 +42,32 @@ def handle_text_doc(message):
         except ValueError:
             days_not_found.append(day)
     
-    for day, subjects in js_payload.items():
+    try:
         req_payload = [] 
-        for key, values in subjects.items():
-            for value in values.values():
-                req_payload.append({key: value})
+        for day, subjects in js_payload.items():
+            pre_req = {}
+            values = subjects.values()
+            for i, key in enumerate(subjects.keys()):
+                pre_req[key] = values[i]
+            req_payload.append(pre_req)                
 
-        payload, err = backend_api.POST(
-        chat_id=chat_id, 
-        week=week, # TODO
-        day=day,
-        payload=req_payload
-        )
+            payload, err = backend_api.POST(
+            chat_id=chat_id, 
+            week=week, # TODO
+            day=day,
+            payload=req_payload
+            )
 
-        if err != None:
-            res = utils.problems_DB
-            return
-        else:
-            if payload["error"] != 0:
-                res = payload["message"]
+            if err != None:
+                res = utils.problems_DB
                 return
-    # except ValueError:
-    # bot.reply_to(message, "Неправильный номер недели") # TODO
-    # return
-    # except Exception:
-    #     bot.reply_to(message, "Неправильный формат документа") # TODO
-    #     return
-    bot.reply_to(message, res.format(days=", ".join(days_not_found)))
+            else:
+                if payload["error"] != 0:
+                    res = payload["message"]
+                    return
+        bot.reply_to(message, res.format(days=", ".join(days_not_found)))
+    except Exception as error:
+        bot.reply_to(message, "Неправильный формат файла") # TODO
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
