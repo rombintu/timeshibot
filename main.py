@@ -29,45 +29,59 @@ def handle_text_doc(message):
     days_not_found = []
     week = 0
     js_payload = {}
-    res = "Успех!\nДни которые не были отправлены:\n{days}"
+    global_Errors = []
+    res = "Успех!\nДни которые не были отправлены:\n{days}\nОшибки:\n{errors}"
     try:
         week = int(message.caption) % 2
     except TypeError:
         bot.reply_to(message, "Неправильный номер недели") # TODO
         return
 
-    for day in utils.short_days["en"]:
+    for i, day in enumerate(utils.short_days["en"]):
         try:
             js_payload[day] = utils.excel_parse(ex_file, sheet_name=day)
         except ValueError:
-            days_not_found.append(day)
+            days_not_found.append(utils.short_days["rus"][i])
+            continue
     
     try:
-        req_payload = [] 
         for day, subjects in js_payload.items():
-            pre_req = {}
-            values = subjects.values()
-            for i, key in enumerate(subjects.keys()):
-                pre_req[key] = values[i]
-            req_payload.append(pre_req)                
+            req_payload = [] 
+            keys = list(subjects.keys())
+            pre_values = list(subjects.values())
+            values = []
+            for v in pre_values:
+                values.append(list(v.values()))
 
+            for i in range(len(values[0])):
+                tmp = {}
+                for j, key in enumerate(keys):
+                    tmp[key] = str(values[j][i])
+                req_payload.append(tmp)
+            
             payload, err = backend_api.POST(
             chat_id=chat_id, 
-            week=week, # TODO
+            week=utils.weeks[week],
             day=day,
             payload=req_payload
             )
 
             if err != None:
                 res = utils.problems_DB
+                bot.send_message(message.chat.id, res)
                 return
             else:
                 if payload["error"] != 0:
                     res = payload["message"]
-                    return
-        bot.reply_to(message, res.format(days=", ".join(days_not_found)))
-    except Exception as error:
-        bot.reply_to(message, "Неправильный формат файла") # TODO
+                    print(res)
+                    bot.send_message(message.chat.id, res)
+    except Exception as error: # TODO
+        global_Errors.append(str(error))
+    bot.send_message(message.chat.id, res.format(
+            days=", ".join(days_not_found),
+            errors=" | ".join(global_Errors),
+            )
+        )
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
@@ -135,9 +149,19 @@ def handle_text(message):
                 utils.not_found,
             )
             else:
+                buff = ""
+                for s in payload["message"]["Subjects"]:
+                    buff += utils.pattern_res_dig.format(
+                        time=s["time"][:-3], # TODO
+                        subject=s["title"],
+                        teacher=s["teacher"],
+                        office=s["office"],
+                        comment=s["comment"]
+                    ) + "\n"
                 res = utils.pattern_res.format(
-                    day_long_rus.title(), 
-                    json.dumps(payload), # TODO
+                    day_long_rus.title() +\
+                        f'\n({utils.weeks_rus[payload["message"]["Week"]]} неделя)', 
+                    buff, # TODO
                 )  
         bot.reply_to(message, res)
 

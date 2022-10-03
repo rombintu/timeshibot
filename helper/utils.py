@@ -9,10 +9,11 @@ start = """
 Весь мой код открыт и находится на https://github.com/rombintu/timeshibot"""
 
 pattern_res = "Расписание на {}:\n{}"
-
+pattern_res_dig = """[{time}] {subject} {teacher} ({office}) {comment}"""
 problems_DB = "Проблемы с Базой данных 😢\nОбратитесь к администратору "
 not_found = "Не найдено 🙈"
 weeks = ["odd", "even"]
+weeks_rus = {"odd": "нечетная", "even": "четная"}
 
 days = [
     "понедельник",
@@ -78,3 +79,6 @@ def excel_parse(ex_file, sheet_name):
 
 def check_js_file(js_file): # TODO
     return True
+
+# def parse_time(t):
+#     return datetime.strptime(t, "%H:%M:%S").isoformat()
